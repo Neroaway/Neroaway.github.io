@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2018-09-09T07:54:24.819Z</updated>
+  <updated>2018-09-09T13:07:17.650Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,20 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>My text</title>
+    <link href="http://yoursite.com/2018/09/09/My-text/"/>
+    <id>http://yoursite.com/2018/09/09/My-text/</id>
+    <published>2018-09-09T13:07:17.000Z</published>
+    <updated>2018-09-09T13:07:17.650Z</updated>
+    
+    <summary type="html">
+    
+    </summary>
+    
+    
+  </entry>
   
   <entry>
     <title>C++数据结构与算法</title>

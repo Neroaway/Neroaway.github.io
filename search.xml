@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title><![CDATA[My text]]></title>
+    <url>%2F2018%2F09%2F09%2FMy-text%2F</url>
+    <content type="text"></content>
+  </entry>
+  <entry>
     <title><![CDATA[C++数据结构与算法]]></title>
     <url>%2F2018%2F09%2F09%2FC-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95%2F</url>
     <content type="text"></content>
