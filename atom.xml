@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2018-09-09T13:07:17.650Z</updated>
+  <updated>2018-09-10T07:26:13.804Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -17,30 +17,25 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>My text</title>
-    <link href="http://yoursite.com/2018/09/09/My-text/"/>
-    <id>http://yoursite.com/2018/09/09/My-text/</id>
-    <published>2018-09-09T13:07:17.000Z</published>
-    <updated>2018-09-09T13:07:17.650Z</updated>
+    <title>算法-----枚举</title>
+    <link href="http://yoursite.com/2018/09/10/%E7%AE%97%E6%B3%95-%E6%9E%9A%E4%B8%BE/"/>
+    <id>http://yoursite.com/2018/09/10/算法-枚举/</id>
+    <published>2018-09-10T07:00:49.000Z</published>
+    <updated>2018-09-10T07:26:13.804Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="例题：-完美立方体"><a href="#例题：-完美立方体" class="headerlink" title="例题： 完美立方体"></a>例题： 完美立方体</h1><p>例如： a^3 = b^3 + c^3 + d^3   的等式被称为完美立方体。</p><p>输入：一个正整数N（N &lt;= 100) </p><p>输出： 每行输出一个完美立方体。输出格式 ：  </p><pre><code>Cube = a , Triple = (b,c,d)   其中 a,b,c,d所在位置分别用实际求出四元组值代入。</code></pre><p>#完美立方体</p><p>#include <iostream></iostream></p><p>#include <cstdio><br>using namespace std;<br>int main()<br>{<br>    int N;<br>    cin&gt;&gt;N;<br>    for(int a = 2;a &lt;= N;++a){<br>        for(int b = 2;b &lt; a;++b){<br>            for(int c = b;c &lt; a; c++){<br>                for(int d = c;d &lt; a;++d){<br>                    if(a<em>a</em>a == b<em>b</em>b + c<em>c</em>c + d<em>d</em>d)<br>                        printf(“Cube = %d , Triple = (%d,%d,%d)\n”,a,b,c,d);<br>                    return 0;<br>                }<br>            }<br>        }<br>    }<br>}</cstdio></p>]]></content>
     
     <summary type="html">
+    
+      
+      
+        &lt;h1 id=&quot;例题：-完美立方体&quot;&gt;&lt;a href=&quot;#例题：-完美立方体&quot; class=&quot;headerlink&quot; title=&quot;例题： 完美立方体&quot;&gt;&lt;/a&gt;例题： 完美立方体&lt;/h1&gt;&lt;p&gt;例如： a^3 = b^3 + c^3 + d^3   的等式被称为完美立方体。&lt;/
+      
     
     </summary>
     
     
-  </entry>
-  
-  <entry>
-    <title>C++数据结构与算法</title>
-    <link href="http://yoursite.com/2018/09/09/C-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
-    <id>http://yoursite.com/2018/09/09/C-数据结构与算法/</id>
-    <published>2018-09-09T07:54:24.000Z</published>
-    <updated>2018-09-09T07:54:24.819Z</updated>
-    
-    <summary type="html">
-    
-    </summary>
-    
+      <category term="C++算法与数据结构(基础）" scheme="http://yoursite.com/tags/C-%E7%AE%97%E6%B3%95%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-%E5%9F%BA%E7%A1%80%EF%BC%89/"/>
     
   </entry>
   
