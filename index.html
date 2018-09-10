@@ -331,7 +331,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  154
+                  615
                 </span>
               
 
@@ -347,7 +347,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  1
+                  2
                 </span>
               
             </div>
@@ -370,7 +370,7 @@
       
         
           
-            <h1 id="例题：-完美立方体"><a href="#例题：-完美立方体" class="headerlink" title="例题： 完美立方体"></a>例题： 完美立方体</h1><p>例如： a^3 = b^3 + c^3 + d^3   的等式被称为完美立方体。</p>
+            <h1 id="例题一：-完美立方体"><a href="#例题一：-完美立方体" class="headerlink" title="例题一： 完美立方体"></a>例题一： 完美立方体</h1><p>例如： a^3 = b^3 + c^3 + d^3   的等式被称为完美立方体。</p>
 <p>输入：一个正整数N（N &lt;= 100) </p>
 <p>输出： 每行输出一个完美立方体。输出格式 ：  </p>
 <pre><code>Cube = a , Triple = (b,c,d)
@@ -379,6 +379,25 @@
 </code></pre><p>#完美立方体</p>
 <p>#include <iostream></iostream></p>
 <p>#include <cstdio><br>using namespace std;<br>int main()<br>{<br>    int N;<br>    cin&gt;&gt;N;<br>    for(int a = 2;a &lt;= N;++a){<br>        for(int b = 2;b &lt; a;++b){<br>            for(int c = b;c &lt; a; c++){<br>                for(int d = c;d &lt; a;++d){<br>                    if(a<em>a</em>a == b<em>b</em>b + c<em>c</em>c + d<em>d</em>d)<br>                        printf(“Cube = %d , Triple = (%d,%d,%d)\n”,a,b,c,d);<br>                    return 0;<br>                }<br>            }<br>        }<br>    }<br>}</cstdio></p>
+<h1 id="例题二：生理周期"><a href="#例题二：生理周期" class="headerlink" title="例题二：生理周期"></a>例题二：生理周期</h1><h2 id="题目阐述："><a href="#题目阐述：" class="headerlink" title="题目阐述："></a>题目阐述：</h2><p>​            人有体力、情商、智商的高峰日子，它们分别每隔 23天、28天和33天出现一次。对于每个人，我们想知道何时三个高峰落在同一天。给定三个高峰出现的日子p,e和      i（不一定是第一次高峰出现的日子）, 再给定另一个指定的日子d，你的任务是输出日子d之后，下一次三个高峰落在同一    天的日子（用距离d的天数表示）。例如：给定日子为10，下次出现三个高峰同一天的日子是12，则输出2。 </p>
+<h2 id="生理周期"><a href="#生理周期" class="headerlink" title="生理周期"></a>生理周期</h2><h3 id="输入"><a href="#输入" class="headerlink" title="输入"></a>输入</h3><p>输入四个整数：p, e, i和d。 p, e, i分别表示体力、情感和智力高峰出现的日子。d是给定的日子，可能小于p, e或 i。所有给定日子是非负的并且小于或等于365，所求的日子小于或等于21252</p>
+<h3 id="输出"><a href="#输出" class="headerlink" title="输出"></a>输出</h3><p>从给定日子起，下一次三个高峰同一天的日子（距离给定日子的天数）。</p>
+<h3 id="输入样例"><a href="#输入样例" class="headerlink" title="输入样例"></a>输入样例</h3><p>0 0 0 0</p>
+<p>0 0 0 100</p>
+<p>5 20 34 325</p>
+<p>4 5 6 7</p>
+<p>283 102 23 320</p>
+<p>203 301 203 40</p>
+<p>-1 -1 -1 -1</p>
+<h3 id="输出样例"><a href="#输出样例" class="headerlink" title="输出样例"></a>输出样例</h3><p>Case 1: the next triple peak occurs in 21252 days. </p>
+<p>Case 2: the next triple peak occurs in 21152 days. </p>
+<p>Case 3: the next triple peak occurs in 19575 days. </p>
+<p>Case 4: the next triple peak occurs in 16994 days. </p>
+<p>Case 5: the next triple peak occurs in 8910 days. </p>
+<p>Case 6: the next triple peak occurs in 10789 days.</p>
+<h3 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h3><p>#include <iostream> </iostream></p>
+<p>#include <cstdio><br>using namespace std;</cstdio></p>
+<p>#define N  21252<br>int main(){<br>int p,e,i,d,caseNo = 0;<br>while( cin &gt;&gt; p &gt;&gt; e &gt;&gt;i &gt;&gt;d &amp;&amp; p!= -1) {<br>    ++ caseNo;<br>    int k;<br>    for(k = d+1; (k-p)%23; ++k);<br>    for(; (k-e)%28; k+= 23);<br>    for(; (k-i)%33; k+= 23*28);<br>    cout &lt;&lt; “Case “ &lt;&lt; caseNo &lt;&lt;<br>    “: the next triple peak occurs in “ &lt;&lt; k-d &lt;&lt; “ days.” &lt;&lt; endl;<br>  }<br>  return 0;<br>}</p>
 
           
         
