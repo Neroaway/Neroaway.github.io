@@ -1,0 +1,5 @@
+---
+import Base from '../layouts/Base.astro';
+import { url } from '../lib/posts';
+---
+<Base title="没有找到这页"><section class="page-heading"><span class="mini-heading">404 / A MISSING PAGE</span><h1>这页还没有写下<span class="accent">。</span></h1><p>链接可能已更改。试试搜索，或者回到笔记本首页。</p><div class="tags"><a href={url()}>返回首页 →</a><a href={url('search/')}>搜索文章 →</a></div></section></Base>

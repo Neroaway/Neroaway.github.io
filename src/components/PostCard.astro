@@ -1,0 +1,12 @@
+---
+import { date, typeName, postUrl, tagUrl, type Post } from '../lib/posts';
+interface Props { post: Post; index?: number; }
+const { post, index } = Astro.props;
+---
+<article class="post-card">
+  {index !== undefined && <span class="post-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>}
+  <div class="post-card-body"><div class="eyebrow"><span class:list={['type-label',post.data.type]}>{typeName(post.data.type)}</span><time datetime={date(post.data.published)}>{date(post.data.published)}</time>{post.data.demo && <span class="demo-label">演示内容</span>}</div>
+  <h3><a href={postUrl(post)}>{post.data.title}</a></h3><p>{post.data.description}</p>
+  <div class="tags">{post.data.tags.map(tag => <a href={tagUrl(tag)}>#{tag}</a>)}</div></div>
+  <a class="post-arrow" href={postUrl(post)} aria-label={`阅读：${post.data.title}`}>↗</a>
+</article>

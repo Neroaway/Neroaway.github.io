@@ -1,0 +1,7 @@
+---
+import Base from '../layouts/Base.astro';
+import { allPosts, date, postUrl, typeName } from '../lib/posts';
+const posts = await allPosts();
+const years = [...new Set(posts.map(p=>date(p.data.published).slice(0,4)))];
+---
+<Base title="时间归档"><section class="page-heading"><span class="mini-heading">THE NOTEBOOK, OVER TIME</span><h1>时间归档<span class="accent">。</span></h1><p>按时间回看，理解是怎样一点点积累的。共 {posts.length} 篇文章。</p></section><div class="archive">{years.map(year => <section class="archive-year"><h2>{year}<span>{posts.filter(p=>date(p.data.published).startsWith(year)).length} 篇</span></h2><div>{posts.filter(p=>date(p.data.published).startsWith(year)).map(p => <a class="archive-row" href={postUrl(p)}><time datetime={date(p.data.published)}>{date(p.data.published).slice(5)}</time><span>{p.data.title}{p.data.demo && <small>演示内容</small>}</span><span class="archive-type">{typeName(p.data.type)} ↗</span></a>)}</div></section>)}</div></Base>

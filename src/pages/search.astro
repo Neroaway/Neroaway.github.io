@@ -1,0 +1,38 @@
+---
+import Base from '../layouts/Base.astro';
+import { url } from '../lib/posts';
+---
+<Base title="站内搜索"><section class="page-heading"><span class="mini-heading">FIND A THOUGHT</span><h1>寻找一条思路<span class="accent">。</span></h1><p>搜索标题、标签、主题与正文。所有检索都在你的浏览器里完成。</p></section><section class="search-section" data-index={url('search-index.json')}><form id="search-form" role="search"><label for="search-input">输入关键词</label><div class="search-box"><input id="search-input" type="search" placeholder="试试「证据」「研究方法」或「反例」" autocomplete="off"/><button type="submit">搜索 →</button></div></form><p id="search-status" role="status" aria-live="polite">输入关键词，开始探索笔记。</p><div id="search-results"></div><noscript>请启用 JavaScript 使用本地搜索；也可以通过归档与主题页面浏览文章。</noscript></section>
+<script>
+import { searchEntries, type SearchEntry } from '../lib/search';
+const input=document.querySelector<HTMLInputElement>('#search-input')!;
+const status=document.querySelector<HTMLElement>('#search-status')!;
+const results=document.querySelector<HTMLElement>('#search-results')!;
+const indexUrl=document.querySelector<HTMLElement>('[data-index]')!.dataset.index!;
+let indexPromise:Promise<SearchEntry[]> | undefined;
+let generation=0;
+async function search() {
+  const current=++generation, query=input.value.trim();
+  const state=new URL(location.href); if(query) state.searchParams.set('q',query); else state.searchParams.delete('q'); history.replaceState(null,'',state);
+  results.replaceChildren();
+  if(!query) {status.textContent='输入关键词，开始探索笔记。';return;}
+  status.textContent='正在搜索…';
+  try {
+    indexPromise ??= fetch(indexUrl).then(r=>{if(!r.ok) throw new Error('无法加载索引');return r.json();});
+    const entries=await indexPromise; if(current!==generation)return;
+    const matches=searchEntries(entries,query); status.textContent=matches.length ? `找到 ${matches.length} 篇文章` : '没有找到匹配的文章。试试更短的关键词。';
+    matches.forEach(entry=>{
+      const article=document.createElement('article'); article.className='search-result';
+      const meta=document.createElement('div');meta.className='eyebrow';meta.textContent=`${entry.type==='paper'?'论文阅读':'独立思考'}${entry.demo?' · 演示内容':''}`;
+      const heading=document.createElement('h2'),link=document.createElement('a');link.href=entry.url;link.textContent=entry.title;heading.append(link);
+      const excerpt=document.createElement('p');const pos=entry.body.toLocaleLowerCase().indexOf(query.toLocaleLowerCase().split(/\s+/)[0]);excerpt.textContent=pos>=0 ? `…${entry.body.slice(Math.max(0,pos-35),pos+150)}…` : entry.description;
+      const tags=document.createElement('small');tags.textContent=entry.tags.map(t=>`#${t}`).join('  ');article.append(meta,heading,excerpt,tags);results.append(article);
+    });
+  } catch {if(current===generation){status.textContent='搜索索引加载失败，请检查网络后重试。';indexPromise=undefined;}}
+}
+let timer:ReturnType<typeof setTimeout>;
+input.addEventListener('input',()=>{clearTimeout(timer);generation++;timer=setTimeout(search,150);});
+document.querySelector('#search-form')!.addEventListener('submit',e=>{e.preventDefault();clearTimeout(timer);void search();});
+input.value=new URL(location.href).searchParams.get('q') ?? ''; if(input.value)void search();
+</script>
+</Base>

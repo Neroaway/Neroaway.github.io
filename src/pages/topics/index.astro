@@ -1,0 +1,8 @@
+---
+import Base from '../../layouts/Base.astro';
+import { allPosts, topicUrl, tagUrl } from '../../lib/posts';
+const posts = await allPosts();
+const topics = [...new Set(posts.flatMap(p=>p.data.topics))];
+const tags = [...new Set(posts.flatMap(p=>p.data.tags))];
+---
+<Base title="研究主题"><section class="page-heading"><span class="mini-heading">FOLLOW A THREAD</span><h1>沿着主题阅读<span class="accent">。</span></h1><p>把相近的问题放在一起，让不同文章之间的联系慢慢浮现。</p></section><div class="topic-grid">{topics.map((t,i) => <a class="topic-card" href={topicUrl(t)}><span class="mini-heading">{String(i+1).padStart(2,'0')} / RESEARCH THEME</span><h2>{t} <span>↗</span></h2><p>{posts.filter(p=>p.data.topics.includes(t)).length} 篇笔记与思考</p></a>)}</div><section class="all-tags"><h2>标签索引</h2><div class="tags">{tags.map(t=><a href={tagUrl(t)}>#{t} <small>{posts.filter(p=>p.data.tags.includes(t)).length}</small></a>)}</div></section></Base>

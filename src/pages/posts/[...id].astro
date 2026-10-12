@@ -1,0 +1,25 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import PostCard from '../../components/PostCard.astro';
+import { allPosts, date, typeName, topicUrl, tagUrl, url } from '../../lib/posts';
+import { siteConfig } from '../../../site.config.mjs';
+export async function getStaticPaths() { return (await allPosts()).map(post => ({ params: { id: post.id }, props: { post } })); }
+const { post } = Astro.props;
+const { Content, headings } = await render(post);
+const data = post.data;
+const related = (await allPosts()).filter(p => p.id !== post.id && (data.related.includes(p.id) || p.data.topics.some(t => data.topics.includes(t)))).slice(0,3);
+const paper = data.paper;
+const toc = headings.filter(h => h.depth === 2 || h.depth === 3);
+const length = (post.body ?? '').replace(/\s/g,'').length;
+---
+<Base title={data.title} description={data.description}>
+<div class="article-shell"><a class="back-link" href={url('archive/')}>← 返回所有文章</a>
+<header class="article-header"><div class="eyebrow"><span class:list={['type-label', data.type]}>{typeName(data.type)}</span>{data.demo && <span class="demo-label">演示内容</span>}</div><h1>{data.title}</h1><p class="article-description">{data.description}</p><div class="article-meta"><span>{siteConfig.author}</span><span>发布 <time datetime={date(data.published)}>{date(data.published)}</time></span><span>更新 <time datetime={date(data.updated ?? data.published)}>{date(data.updated ?? data.published)}</time></span><span>约 {Math.max(1,Math.ceil(length/450))} 分钟</span></div><div class="tags">{data.topics.map(t => <a class="topic-tag" href={topicUrl(t)}>{t}</a>)}{data.tags.map(t => <a href={tagUrl(t)}>#{t}</a>)}</div></header>
+{data.demo && <div class="notice demo-notice"><strong>演示内容</strong><p>本文仅展示博客功能与写作结构。{data.type === 'paper' ? '论文为虚构教学示例，文中不报告任何真实论文结论。' : '文中的研究假设尚未验证，不构成实证结论。'}</p></div>}
+{paper && <section class="paper-info" aria-label="论文信息"><span class="mini-heading">PAPER DETAILS</span><h2>{paper.title}</h2><dl><div><dt>作者</dt><dd>{paper.authors.join('、')}</dd></div><div><dt>年份</dt><dd>{paper.year ?? '未填写'}</dd></div><div><dt>发表</dt><dd>{paper.venue ?? '未填写'}</dd></div>{paper.doi && <div><dt>DOI</dt><dd><a href={`https://doi.org/${paper.doi}`}>{paper.doi} ↗</a></dd></div>}{paper.arxiv && <div><dt>arXiv</dt><dd><a href={`https://arxiv.org/abs/${paper.arxiv}`}>{paper.arxiv} ↗</a></dd></div>}{paper.url && <div><dt>原文</dt><dd><a href={paper.url}>阅读原文 ↗</a></dd></div>}</dl></section>}
+<div class="article-grid"><article class="prose"><Content />{data.references.length > 0 && <section aria-label="参考资料"><h2 id="references">参考资料链接</h2><ul>{data.references.map(ref => <li><a href={ref.url}>{ref.title} ↗</a></li>)}</ul></section>}</article>
+<aside class="toc"><details open><summary>本文目录 <span>ON THIS PAGE</span></summary><nav aria-label="文章目录">{toc.map(h => <a class:list={{nested:h.depth === 3}} href={`#${h.slug}`}>{h.text}</a>)}{data.references.length > 0 && <a href="#references">参考资料链接</a>}</nav></details><div class="evidence-key"><span><i class="evidence-dot"></i> 论文中的结论</span><span><i class="interpretation-dot"></i> 我的理解</span><span><i class="hypothesis-dot"></i> 待验证猜想</span></div></aside></div>
+{related.length > 0 && <section class="related"><div class="section-heading"><h2>接着读<span>CONNECTED NOTES</span></h2></div>{related.map(p => <PostCard post={p}/>)}</section>}
+</div>
+</Base>
