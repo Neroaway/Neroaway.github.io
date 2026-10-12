@@ -9,7 +9,7 @@ export async function getStaticPaths() { return (await allPosts()).map(post => (
 const { post } = Astro.props;
 const { Content, headings } = await render(post);
 const data = post.data;
-const related = (await allPosts()).filter(p => p.id !== post.id && (data.related.includes(p.id) || p.data.topics.some(t => data.topics.includes(t)))).slice(0,3);
+const related = (await allPosts()).filter(p => p.id !== post.id && (data.related.includes(p.id) || p.data.topics.some(t => data.topics.includes(t)))).sort((a,b)=>Number(data.related.includes(b.id))-Number(data.related.includes(a.id))).slice(0,3);
 const network = await connections();
 const outgoing = network.links.filter(link => link.source === post.id);
 const incoming = network.links.filter(link => link.target === post.id);

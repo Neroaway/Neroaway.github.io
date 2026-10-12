@@ -30,7 +30,7 @@ test('文章公式、图片、代码、目录、相关笔记与主题导航',asy
   await expect(page.locator('pre.astro-code')).toBeVisible();await expect(page.locator('table')).toBeVisible();
   await page.locator('.toc').getByRole('link',{name:'核心问题',exact:true}).click();await expect(page).toHaveURL(/#核心问题|#%/);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();
-  await page.locator('.related h3 a').click();await expect(page.locator('h1')).toContainText('把一个直觉');
+  await page.locator('.related h3 a[href$="/posts/demo-thought/"]').click();await expect(page.locator('h1')).toContainText('把一个直觉');
   await page.goto('topics/');await page.locator('.topic-card').first().click();expect(await page.locator('.post-card').count()).toBeGreaterThan(0);
   expect(failed).toEqual([]);
 });

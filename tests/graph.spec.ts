@@ -59,8 +59,16 @@ test('手机双指缩放与触控平移',async({page,isMobile})=>{
   await client.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
   expect(await layer.getAttribute('transform')).not.toEqual(before);
   const afterZoom=await layer.getAttribute('transform');
-  await client.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:box!.x+30,y:box!.y+75,id:0}]});
-  await client.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:box!.x+70,y:box!.y+90,id:0}]});
+  const blank=await graph.locator('.graph-canvas').evaluate(canvas=>{
+    const box=canvas.getBoundingClientRect();
+    for(let dy=70;dy<box.height-65;dy+=25)for(let dx=25;dx<box.width-65;dx+=25){
+      const x=box.x+dx,y=box.y+dy,element=document.elementFromPoint(x,y);
+      if(element?.closest('.graph-canvas')&&!element.closest('.graph-node'))return {x,y};
+    }
+    throw new Error('找不到用于平移的空白画布');
+  });
+  await client.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:blank.x,y:blank.y,id:0}]});
+  await client.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:blank.x+35,y:blank.y+15,id:0}]});
   await client.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
   expect(await layer.getAttribute('transform')).not.toEqual(afterZoom);await client.detach();
 });
