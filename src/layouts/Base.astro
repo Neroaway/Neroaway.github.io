@@ -6,7 +6,7 @@ import 'katex/dist/katex.min.css';
 interface Props { title?: string; description?: string; }
 const { title, description = siteConfig.description } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
-const nav = [{path:'',label:'首页'}, {path:'archive/',label:'归档'}, {path:'topics/',label:'主题'}, {path:'about/',label:'关于'}];
+const nav = [{path:'',label:'首页'}, {path:'archive/',label:'归档'}, {path:'topics/',label:'主题'}, {path:'graph/',label:'关系图'}, {path:'about/',label:'关于'}];
 ---
 <!doctype html>
 <html lang={siteConfig.language}>

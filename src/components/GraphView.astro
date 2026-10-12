@@ -1,0 +1,19 @@
+---
+import '../styles/graph.css';
+import { url, connections } from '../lib/posts';
+interface Props { focus?: string; compact?: boolean; }
+const {focus='', compact=false}=Astro.props;
+const graph=await connections();
+const topics=[...new Set(graph.nodes.flatMap(n=>n.topics))];
+---
+<section class:list={['graph-widget',{'graph-compact':compact}]} data-note-graph data-index={url('graph-index.json')} data-focus={focus} data-compact={String(compact)} aria-label={compact?'当前笔记的关系图':'全站笔记关系图'}>
+{!compact && <div class="graph-toolbar"><label class="graph-search-label">寻找笔记<input type="search" data-graph-search placeholder="标题、标签或主题" autocomplete="off"/></label><label>研究主题<select data-graph-topic><option value="">所有主题</option>{topics.map(topic=><option value={topic}>{topic}</option>)}</select></label><label>文章类型<select data-graph-type><option value="">所有文章</option><option value="paper">论文阅读</option><option value="thought">独立思考</option></select></label><label class="graph-check"><input type="checkbox" data-graph-topics/>显示主题节点</label><label class="graph-check"><input type="checkbox" data-graph-neighbors/>仅看选中笔记的一跳邻居</label></div>}
+<div class="graph-layout"><div class="graph-stage"><svg class="graph-canvas" aria-label="可缩放和拖动的笔记网络" role="group"></svg><p class="graph-message" data-graph-message>正在连接笔记…</p><div class="graph-actions" aria-label="图谱视图控制"><button type="button" data-graph-zoom="in" aria-label="放大关系图">＋</button><button type="button" data-graph-zoom="out" aria-label="缩小关系图">−</button><button type="button" data-graph-reset>适应视图</button></div><div class="graph-legend"><span><i class="paper-dot"></i>论文阅读</span><span><i class="thought-dot"></i>独立思考</span>{!compact && <span><i class="topic-dot"></i>研究主题</span>}</div></div>
+{!compact && <aside class="graph-detail" aria-label="选中的笔记"><span class="mini-heading">A CONNECTED NOTE</span><h2 data-graph-title>从一篇笔记出发</h2><p data-graph-description>点击节点，查看它与哪些笔记相连；点击节点旁的 ↗ 直接阅读。</p><div class="tags" data-graph-tags></div><a class="text-link" data-graph-open hidden>阅读这篇笔记 ↗</a><div class="graph-detail-links" data-graph-links></div></aside>}
+</div><div class="graph-caption"><p data-graph-status role="status" aria-live="polite">{graph.nodes.length} 篇笔记</p><span>{compact?'拖动节点 · 滚轮或双指缩放':'实线：文章链接 / 显式关联 · 虚线：所属主题'}</span></div>
+<noscript><p>交互关系图需要 JavaScript。你也可以从下方文章列表或文章末尾的笔记连接继续阅读。</p></noscript>
+</section>
+<script>
+  import { mountGraph } from '../scripts/graph';
+  document.querySelectorAll<HTMLElement>('[data-note-graph]').forEach(root=>void mountGraph(root));
+</script>

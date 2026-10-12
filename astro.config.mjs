@@ -1,6 +1,7 @@
 import { defineConfig } from 'astro/config';
 import { unified } from '@astrojs/markdown-remark';
 import remarkMath from 'remark-math';
+import remarkWikiLinks from './src/lib/remark-wikilinks.mjs';
 import rehypeKatex from 'rehype-katex';
 import { siteConfig, deploymentBase } from './site.config.mjs';
 // Markdown 的 /images/ 与 /posts/ 链接也统一添加部署前缀。
@@ -23,7 +24,7 @@ export default defineConfig({
   output: 'static',
   markdown: {
     processor: unified({
-      remarkPlugins: [remarkMath, remarkBase],
+      remarkPlugins: [remarkMath, remarkWikiLinks, remarkBase],
       rehypePlugins: [[rehypeKatex, { strict: 'warn', throwOnError: true }]],
     }),
     shikiConfig: { themes: { light: 'github-light', dark: 'github-dark' } },

@@ -1,1 +1,40 @@
-{"name":"thinking-by-thinging","version":"1.0.0","private":true,"type":"module","scripts":{"dev":"astro dev","build":"astro build","preview":"astro preview","check":"astro check","test":"playwright test","verify":"node scripts/verify.mjs","new":"node scripts/new-post.mjs"},"dependencies":{"@astrojs/markdown-remark":"^7.3.2","astro":"^7.3.8","katex":"^0.16.22","rehype-katex":"^7.0.1","remark-math":"^6.0.0"},"devDependencies":{"@astrojs/check":"^0.9.9","@playwright/test":"^1.56.0","@types/node":"^26.6.5","cheerio":"^1.1.2","typescript":"^5.9.3"}}
+{
+  "name": "thinking-by-thinking",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "test": "node --test tests/connections.test.mjs && playwright test",
+    "verify": "node scripts/verify.mjs",
+    "new": "node scripts/new-post.mjs"
+  },
+  "dependencies": {
+    "@astrojs/markdown-remark": "^7.3.2",
+    "astro": "^7.3.8",
+    "d3-drag": "^3.0.0",
+    "d3-force": "^3.0.0",
+    "d3-selection": "^3.0.0",
+    "d3-zoom": "^3.0.0",
+    "katex": "^0.16.22",
+    "rehype-katex": "^7.0.1",
+    "remark-gfm": "^4.0.1",
+    "remark-math": "^6.0.0",
+    "remark-parse": "^11.0.0",
+    "unified": "^11.0.5"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.9",
+    "@playwright/test": "^1.56.0",
+    "@types/d3-drag": "^3.0.7",
+    "@types/d3-force": "^3.0.10",
+    "@types/d3-selection": "^3.0.12",
+    "@types/d3-zoom": "^3.0.9",
+    "@types/node": "^26.6.5",
+    "cheerio": "^1.1.2",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,4 +1,5 @@
 ---
+import '../styles/graph.css';
 import Base from '../layouts/Base.astro';
 import PostCard from '../components/PostCard.astro';
 import { allPosts, url, topicUrl } from '../lib/posts';
@@ -15,7 +16,7 @@ const topics = [...new Set(posts.flatMap(p => p.data.topics))];
 <div class="home-grid"><section><div class="section-heading"><h2>最近写下的<span>RECENT ENTRIES</span></h2><a href={url('archive/')}>全部文章 ↗</a></div>
 <div class="filter-bar" aria-label="按文章类型筛选"><button data-filter="all" class="selected" aria-pressed="true">全部 <span>{posts.length}</span></button><button data-filter="paper" aria-pressed="false">论文阅读</button><button data-filter="thought" aria-pressed="false">独立思考</button></div>
 <div id="recent-posts">{posts.slice(0,8).map((post,index) => <div data-type={post.data.type}><PostCard post={post} index={index}/></div>)}</div><p id="filter-empty" hidden>这个分类还没有文章。</p></section>
-<aside class="home-aside"><div class="aside-section"><span class="mini-heading">RESEARCH THEMES</span><h2>沿着主题阅读</h2>{topics.map((topic,i) => <a class="topic-row" href={topicUrl(topic)}><span><small>{String(i+1).padStart(2,'0')}</small>{topic}</span><span>↗</span></a>)}<a class="text-link" href={url('topics/')}>浏览所有主题与标签 →</a></div><div class="notebook-note"><span class="mini-heading">A NOTE TO SELF</span><p>“读懂”不是记住结论，<br />而是知道自己<br />还有什么没想明白。</p><span class="handline" aria-hidden="true"></span><small>保持好奇，也保留疑问。</small></div><p class="demo-note">当前两篇文章为演示内容，展示笔记结构与写作方式。</p></aside></div>
+<aside class="home-aside"><div class="aside-section"><span class="mini-heading">RESEARCH THEMES</span><h2>沿着主题阅读</h2>{topics.map((topic,i) => <a class="topic-row" href={topicUrl(topic)}><span><small>{String(i+1).padStart(2,'0')}</small>{topic}</span><span>↗</span></a>)}<a class="text-link" href={url('topics/')}>浏览所有主题与标签 →</a></div><a class="graph-entry" href={url('graph/')}><span class="mini-heading">CONNECTED THINKING</span><strong>看看笔记之间的联系 <span>↗</span></strong><small>从一个问题，走向另一个问题。</small><svg viewBox="0 0 240 66" aria-hidden="true"><g stroke="currentColor" stroke-width="1" opacity=".35"><path d="M28 35 98 18 173 42 213 14M28 35 102 55 173 42M98 18 102 55"/></g><g fill="currentColor"><circle cx="28" cy="35" r="5"/><circle cx="98" cy="18" r="7"/><circle cx="102" cy="55" r="4"/><circle cx="173" cy="42" r="6"/><circle cx="213" cy="14" r="4"/></g></svg></a><div class="notebook-note"><span class="mini-heading">A NOTE TO SELF</span><p>“读懂”不是记住结论，<br />而是知道自己<br />还有什么没想明白。</p><span class="handline" aria-hidden="true"></span><small>保持好奇，也保留疑问。</small></div><p class="demo-note">当前两篇文章为演示内容，展示笔记结构与写作方式。</p></aside></div>
 <script>
   document.querySelectorAll<HTMLButtonElement>('[data-filter]').forEach(button => button.addEventListener('click', () => {
     document.querySelectorAll<HTMLButtonElement>('[data-filter]').forEach(b => { b.classList.toggle('selected', b === button); b.setAttribute('aria-pressed', String(b === button)); });

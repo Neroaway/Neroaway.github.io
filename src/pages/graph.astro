@@ -1,0 +1,7 @@
+---
+import Base from '../layouts/Base.astro';
+import GraphView from '../components/GraphView.astro';
+import { allPosts, postUrl, typeName } from '../lib/posts';
+const posts=await allPosts();
+---
+<Base title="笔记关系图" description="从论文笔记中的链接出发，探索研究问题与思考之间的联系。"><section class="page-heading graph-heading"><span class="mini-heading">THOUGHTS, CONNECTED</span><h1>让思路连接起来<span class="accent">。</span></h1><p>每个节点是一篇笔记。连线来自正文里的站内引用或你明确设置的关联；也可以展开研究主题，沿着一个问题继续阅读。</p></section><GraphView/><p class="graph-help">拖动节点调整位置，拖动空白处移动画布，滚轮或双指缩放。点击节点查看联系，点击 ↗ 阅读文章。连线表示笔记间的引用与关联，不代表论文已证明彼此支持。</p><details class="graph-note-list"><summary>用列表浏览所有笔记（{posts.length}）</summary><ul>{posts.map(post=><li><a href={postUrl(post)}>{post.data.title}</a><small>{typeName(post.data.type)}{post.data.demo?' · 演示内容':''}</small></li>)}</ul></details></Base>

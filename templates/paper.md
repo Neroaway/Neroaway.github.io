@@ -9,6 +9,8 @@ tags: [论文阅读]
 demo: false
 draft: true
 related: []
+# 填笔记文件名（不含 .md）即可关联，例如 related: [my-first-paper]
+# 正文也可用 [[my-first-paper|显示文字]] 建立双向可追溯的连接。
 paper:
   title: "填写论文原始标题"
   authors: [填写作者]

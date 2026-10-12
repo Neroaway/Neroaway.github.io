@@ -1,14 +1,19 @@
 ---
 import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
+import GraphView from '../../components/GraphView.astro';
 import PostCard from '../../components/PostCard.astro';
-import { allPosts, date, typeName, topicUrl, tagUrl, url } from '../../lib/posts';
+import { allPosts, connections, date, typeName, topicUrl, tagUrl, url } from '../../lib/posts';
 import { siteConfig } from '../../../site.config.mjs';
 export async function getStaticPaths() { return (await allPosts()).map(post => ({ params: { id: post.id }, props: { post } })); }
 const { post } = Astro.props;
 const { Content, headings } = await render(post);
 const data = post.data;
 const related = (await allPosts()).filter(p => p.id !== post.id && (data.related.includes(p.id) || p.data.topics.some(t => data.topics.includes(t)))).slice(0,3);
+const network = await connections();
+const outgoing = network.links.filter(link => link.source === post.id);
+const incoming = network.links.filter(link => link.target === post.id);
+const connectedNotes = (links: typeof network.links, direction: 'source' | 'target') => [...new Set(links.map(link => link[direction]))].map(id => network.nodes.find(node => node.id === id)!).filter(Boolean);
 const paper = data.paper;
 const toc = headings.filter(h => h.depth === 2 || h.depth === 3);
 const length = (post.body ?? '').replace(/\s/g,'').length;
@@ -20,6 +25,7 @@ const length = (post.body ?? '').replace(/\s/g,'').length;
 {paper && <section class="paper-info" aria-label="论文信息"><span class="mini-heading">PAPER DETAILS</span><h2>{paper.title}</h2><dl><div><dt>作者</dt><dd>{paper.authors.join('、')}</dd></div><div><dt>年份</dt><dd>{paper.year ?? '未填写'}</dd></div><div><dt>发表</dt><dd>{paper.venue ?? '未填写'}</dd></div>{paper.doi && <div><dt>DOI</dt><dd><a href={`https://doi.org/${paper.doi}`}>{paper.doi} ↗</a></dd></div>}{paper.arxiv && <div><dt>arXiv</dt><dd><a href={`https://arxiv.org/abs/${paper.arxiv}`}>{paper.arxiv} ↗</a></dd></div>}{paper.url && <div><dt>原文</dt><dd><a href={paper.url}>阅读原文 ↗</a></dd></div>}</dl></section>}
 <div class="article-grid"><article class="prose"><Content />{data.references.length > 0 && <section aria-label="参考资料"><h2 id="references">参考资料链接</h2><ul>{data.references.map(ref => <li><a href={ref.url}>{ref.title} ↗</a></li>)}</ul></section>}</article>
 <aside class="toc"><details open><summary>本文目录 <span>ON THIS PAGE</span></summary><nav aria-label="文章目录">{toc.map(h => <a class:list={{nested:h.depth === 3}} href={`#${h.slug}`}>{h.text}</a>)}{data.references.length > 0 && <a href="#references">参考资料链接</a>}</nav></details><div class="evidence-key"><span><i class="evidence-dot"></i> 论文中的结论</span><span><i class="interpretation-dot"></i> 我的理解</span><span><i class="hypothesis-dot"></i> 待验证猜想</span></div></aside></div>
+<section class="note-connections"><div class="section-heading"><h2>笔记连接<span>LOCAL CONNECTIONS</span></h2><a href={`${url('graph/')}?focus=${encodeURIComponent(post.id)}`}>在全站关系图中查看 ↗</a></div><p>围绕这篇笔记的一跳邻居。引用其他笔记或填写 related 后，连接会自动更新。</p><GraphView focus={post.id} compact/><div class="connection-lists"><div><h3>本文引用与显式关联 · {connectedNotes(outgoing,'target').length}</h3>{outgoing.length ? <ul>{connectedNotes(outgoing,'target').map(note=><li><a href={note.url}>{note.title} ↗</a><small>{[...new Set(outgoing.filter(link=>link.target===note.id).map(link=>link.kind==='link'?'正文引用':'显式关联'))].join(' · ')}</small></li>)}</ul>:<p>还没有关联其他笔记。</p>}</div><div><h3>反向链接 · {connectedNotes(incoming,'source').length}</h3>{incoming.length ? <ul>{connectedNotes(incoming,'source').map(note=><li><a href={note.url}>{note.title} ↗</a><small>{[...new Set(incoming.filter(link=>link.source===note.id).map(link=>link.kind==='link'?'引用了本文':'关联了本文'))].join(' · ')}</small></li>)}</ul>:<p>还没有其他笔记指向本文。</p>}</div></div></section>
 {related.length > 0 && <section class="related"><div class="section-heading"><h2>接着读<span>CONNECTED NOTES</span></h2></div>{related.map(p => <PostCard post={p}/>)}</section>}
 </div>
 </Base>

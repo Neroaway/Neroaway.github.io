@@ -9,3 +9,9 @@ export async function allPosts() {
 export const postUrl = (post: Post) => url(`posts/${post.id}/`);
 export const topicUrl = (topic: string) => url(`topics/${encodeURIComponent(topic)}/`);
 export const tagUrl = (tag: string) => url(`tags/${encodeURIComponent(tag)}/`);
+
+import type { NoteGraph } from './graph-types';
+import { buildConnections } from './connections.mjs';
+export async function connections(): Promise<NoteGraph> {
+  return buildConnections(await allPosts(), import.meta.env.BASE_URL, import.meta.env.SITE) as NoteGraph;
+}

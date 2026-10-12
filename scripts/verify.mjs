@@ -33,6 +33,12 @@ for(const file of files){
 }
 const index=JSON.parse(await readFile('dist/search-index.json','utf8'));
 assert(Array.isArray(index));
+const graph=JSON.parse(await readFile('dist/graph-index.json','utf8'));
+assert.equal(graph.nodes.length,index.length,'关系图只应包含公开文章');
+const ids=new Set(graph.nodes.map(n=>n.id));
+for(const link of graph.links){assert(ids.has(link.source)&&ids.has(link.target),'图谱的两端必须存在');assert.notEqual(link.source,link.target,'不应包含自引用连线');}
+for(const note of graph.nodes){assert(note.url.startsWith(`${base}/posts/`),'图谱 URL 应包含部署前缀');}
+
 if(index.some(p=>p.url.endsWith('/posts/demo-paper/'))){
 const paper=load(await readFile('dist/posts/demo-paper/index.html','utf8'));
 assert(paper('.astro-code span[style]').length>0,'代码应已高亮');
