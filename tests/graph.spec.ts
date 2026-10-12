@@ -12,13 +12,13 @@ test('关系图加载、真实连线、节点选择、缩放、主题与筛选',
     if(isMobile)await node.tap();else await node.click();await expect(graph.locator('.graph-node.is-selected')).toHaveCount(1);await expect(graph.locator('[data-graph-open]')).toBeVisible();
     await expect(graph.locator('[data-graph-title]')).toHaveText(index.nodes[0].title);
     const layer=graph.locator('.graph-canvas>g');const before=await layer.getAttribute('transform');await graph.getByRole('button',{name:'放大关系图'}).click();expect(await layer.getAttribute('transform')).not.toEqual(before);
-    await graph.getByRole('button',{name:'适应视图'}).click();await expect(graph.locator('.graph-node.is-selected')).toHaveCount(0);
+    await graph.getByRole('button',{name:'重置',exact:true}).click();await expect(graph.locator('.graph-node.is-selected')).toHaveCount(0);
     await graph.locator('[data-graph-topics]').check();expect(await graph.locator('.node-topic').count()).toBeGreaterThan(0);expect(await graph.locator('.topic-edge').count()).toBeGreaterThan(0);
     await graph.locator('[data-graph-topics]').uncheck();await expect(graph.locator('.node-topic')).toHaveCount(0);
     await graph.locator('[data-graph-search]').fill('肯定不存在的关键词xyz');await expect(graph.locator('.graph-node')).toHaveCount(0);await expect(graph.locator('[data-graph-message]')).toContainText('没有匹配');
-    await graph.getByRole('button',{name:'适应视图'}).click();await expect(graph.locator('.graph-node')).toHaveCount(index.nodes.length);
+    await graph.getByRole('button',{name:'重置',exact:true}).click();await expect(graph.locator('.graph-node')).toHaveCount(index.nodes.length);
     await graph.locator('[data-graph-type]').selectOption('paper');await expect(graph.locator('.node-thought')).toHaveCount(0);
-    await graph.getByRole('button',{name:'适应视图'}).click();
+    await graph.getByRole('button',{name:'重置',exact:true}).click();
   }
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();
   await page.locator('#theme-toggle').click();await expect(graph).toBeVisible();expect(errors).toEqual([]);

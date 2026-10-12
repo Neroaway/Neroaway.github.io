@@ -1,0 +1,35 @@
+---
+import Base from '../layouts/Base.astro';
+import { siteConfig } from '../../site.config.mjs';
+import { url } from '../lib/posts';
+import '../styles/write.css';
+const repo=`${siteConfig.githubOwner}/${siteConfig.repository}`;
+const tokenUrl=`https://github.com/settings/personal-access-tokens/new?name=ThinkingByThinking&target_name=${siteConfig.githubOwner}&contents=write`;
+---
+<Base title="上传笔记" description="上传 Markdown 文档，预览并发布到 ThinkingByThinking。">
+<section class="page-heading"><span class="mini-heading">A NEW PAGE</span><h1>把思考写进笔记本<span class="accent">。</span></h1><p>上传一份 Markdown，整理好标题与主题，就可以发布了。</p></section>
+<div id="writer" data-owner={siteConfig.githubOwner} data-repository={siteConfig.repository} data-branch={siteConfig.branch} data-base={url()}>
+<section class="upload-box" id="drop-zone" aria-label="上传 Markdown 文档"><div class="upload-symbol" aria-hidden="true">↑</div><h2>拖入你的 Markdown 文档</h2><p>支持 .md / .markdown，最多 1 MB。已有的标题、标签和论文信息会自动填入。</p><label class="button primary file-picker">选择文档<input id="markdown-file" type="file" accept=".md,.markdown,text/markdown,text/plain"/></label><span id="file-name" class="subtle">文件会先在浏览器本地解析与预览</span></section>
+<p id="import-status" class="writer-status" role="status" aria-live="polite"></p>
+<div id="editor-area" hidden>
+<div class="writer-topline"><span class="mini-heading">整理文章</span><span id="word-count" class="subtle"></span></div>
+<form id="article-form"><fieldset id="article-fields"><div class="editor-grid"><section class="editor-fields" aria-label="文章信息">
+<label>文章标题<input name="title" id="post-title" required maxlength="240" placeholder="这篇笔记在思考什么？"/></label>
+<label>一句话摘要<textarea name="description" id="post-description" rows="3" required maxlength="500"></textarea></label>
+<div class="field-pair"><label>文章类型<select name="type" id="post-type"><option value="thought">独立思考</option><option value="paper">论文阅读</option></select></label><label>文章地址<input name="slug" id="post-slug" required pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="my-paper-note"/><small>小写英文、数字与短横线</small></label></div>
+<div class="field-pair"><label>发布日期<input name="published" id="post-published" type="date" required/></label><label>更新日期<input name="updated" id="post-updated" type="date" required/></label></div>
+<label>研究主题<input name="topics" id="post-topics" required placeholder="例如：多模态学习，推理"/><small>多个主题用逗号分隔</small></label>
+<label>标签<input name="tags" id="post-tags" placeholder="例如：注意力，阅读笔记"/></label>
+<label>关联笔记<input name="related" id="post-related" placeholder="其他笔记的文件名，用逗号分隔"/></label>
+<details id="paper-fields"><summary>论文信息</summary><div class="paper-fields-body"><label>论文原始标题<input id="paper-title"/></label><label>作者<input id="paper-authors" placeholder="多位作者用逗号分隔"/></label><div class="field-pair"><label>年份<input id="paper-year" inputmode="numeric" pattern="[0-9]{4}"/></label><label>会议 / 期刊<input id="paper-venue"/></label></div><label>原文链接<input id="paper-url" type="url" placeholder="https://…"/></label><label>DOI<input id="paper-doi" placeholder="10.xxxx/xxxx"/></label><label>arXiv<input id="paper-arxiv" placeholder="论文编号"/></label></div></details>
+<label class="writer-check"><input id="post-demo" type="checkbox"/>这是演示内容</label>
+<div class="image-upload"><label for="image-files">附带图片 <span class="subtle">可选</span></label><input id="image-files" type="file" accept=".png,.jpg,.jpeg,.gif,.webp,.avif" multiple/><small>如文档使用本地图片，一并选择它们。支持 PNG、JPG、GIF、WebP、AVIF，每张最多 8 MB，总计最多 20 MB。</small><ul id="image-list"></ul></div>
+</section><section class="editor-document" aria-label="正文编辑与预览"><div class="editor-tabs" role="tablist" aria-label="编辑模式"><button type="button" id="tab-preview" role="tab" aria-selected="true" aria-controls="preview-panel">阅读预览</button><button type="button" id="tab-source" role="tab" aria-selected="false" aria-controls="source-panel">Markdown 正文</button></div><section id="preview-panel" class="preview-panel" role="tabpanel" aria-labelledby="tab-preview"><div class="preview-header"><span id="preview-type" class="type-label"></span><h2 id="preview-title"></h2><p id="preview-description"></p></div><article id="markdown-preview" class="prose"></article></section><section id="source-panel" role="tabpanel" aria-labelledby="tab-source" hidden><label class="visually-hidden" for="markdown-body">Markdown 正文</label><textarea id="markdown-body" spellcheck="false"></textarea></section></section></div></fieldset></form>
+<section class="publish-panel" aria-label="发布文章"><div><span class="mini-heading">READY TO SHARE</span><h2>准备好发布了吗？</h2><p>文章将公开发布到 <strong>{repo}</strong>，随后自动更新博客。</p><p class="subtle">先检查预览，也可以下载整理后的 Markdown 留存。</p></div><div class="publish-controls"><button type="button" class="button secondary" id="download-markdown">下载 Markdown</button><button type="button" class="button primary" id="show-connect">连接 GitHub 并发布</button></div>
+<div id="github-connect" hidden><label for="github-token">GitHub 访问令牌</label><div class="token-row"><input id="github-token" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…"/><button class="button primary" id="publish-post" type="button">发布到博客</button></div><p class="subtle">使用仅授权本仓库、Contents 为 Read and write 的精细访问令牌。令牌只发送给 GitHub，页面不会保存它。</p><a href={tokenUrl} target="_blank" rel="noopener noreferrer">创建 GitHub 访问令牌 ↗</a><details class="token-help"><summary>第一次发布：如何设置权限</summary><ol><li>打开上方链接，Resource owner 选择 <strong>{siteConfig.githubOwner}</strong>。</li><li>Repository access 选择 Only select repositories，再选 <strong>{siteConfig.repository}</strong>。</li><li>Repository permissions 中将 Contents 设置为 Read and write，设置较短有效期后生成令牌。</li><li>把令牌填入上方输入框，点击「发布到博客」。</li></ol></details></div>
+<p id="publish-status" class="writer-status" role="status" aria-live="polite"></p><div id="publish-links" class="publish-links"></div>
+</section>
+</div><noscript><p>上传与预览需要 JavaScript。也可以直接在 <a href={`https://github.com/${repo}/upload/${siteConfig.branch}/src/content/posts`}>GitHub 上传 Markdown</a>。</p></noscript>
+</div>
+<script>import '../scripts/write';</script>
+</Base>

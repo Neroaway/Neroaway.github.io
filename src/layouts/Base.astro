@@ -25,10 +25,10 @@ const nav = [{path:'',label:'首页'}, {path:'archive/',label:'归档'}, {path:'
 <a class="skip" href="#main">跳到正文</a>
 <header class="site-header">
   <a class="brand" href={url()}><span class="brand-mark" aria-hidden="true">t<span>.</span></span><span>{siteConfig.title}<small>READING & THINKING</small></span></a>
-  <nav aria-label="主导航">{nav.map(item => <a href={url(item.path)} aria-current={Astro.url.pathname === url(item.path) ? 'page' : undefined}>{item.label}</a>)}<a class="search-nav" href={url('search/')} aria-label="站内搜索"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><span>搜索</span></a><button id="theme-toggle" class="theme-toggle" aria-label="切换明暗主题" title="切换明暗主题">◐</button></nav>
+  <nav aria-label="主导航">{nav.map(item => <a href={url(item.path)} aria-current={Astro.url.pathname === url(item.path) ? 'page' : undefined}>{item.label}</a>)}<a class="search-nav" href={url('search/')} aria-label="站内搜索"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><span>搜索</span></a><a class="write-nav" href={url('write/')}>写作</a></nav><button id="theme-toggle" class="theme-toggle" aria-label="切换明暗主题" title="切换明暗主题">◐</button>
 </header>
 <main id="main"><slot /></main>
-<footer class="site-footer"><span>{siteConfig.title}<small>每一次阅读，都是一次重新思考。</small></span><span><a href={siteConfig.github}>GitHub ↗</a><small>© {new Date().getFullYear()} {siteConfig.author}</small></span></footer>
+<footer class="site-footer"><span>{siteConfig.title}<small>每一次阅读，都是一次重新思考。</small></span><span><span class="footer-links"><a href={url('write/')}>上传 Markdown</a><a href={siteConfig.github}>GitHub ↗</a></span><small>© {new Date().getFullYear()} {siteConfig.author}</small></span></footer>
 <script>
   const button = document.querySelector<HTMLButtonElement>('#theme-toggle');
   function isDark() { return document.documentElement.dataset.theme ? document.documentElement.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; }

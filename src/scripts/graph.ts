@@ -2,11 +2,12 @@ import { select } from 'd3-selection';
 import { forceSimulation, forceLink, forceManyBody, forceCollide, forceX, forceY, type SimulationNodeDatum, type SimulationLinkDatum } from 'd3-force';
 import { zoom, zoomIdentity } from 'd3-zoom';
 import { drag } from 'd3-drag';
+import { edgeEndpoints } from '../lib/graph-geometry.mjs';
 
 import type { GraphNote as Note, GraphLink as Connection } from '../lib/graph-types';
 interface GraphData {nodes:Note[];links:Connection[];}
 interface Node extends SimulationNodeDatum {id:string;title:string;type:'paper'|'thought'|'topic';note?:Note;degree:number;}
-interface Edge extends SimulationLinkDatum<Node> {source:Node;target:Node;topic:boolean;}
+interface Edge extends SimulationLinkDatum<Node> {source:Node;target:Node;topic:boolean;forward:boolean;reverse:boolean;}
 const SVG_NS='http://www.w3.org/2000/svg';
 function svgElement<K extends keyof SVGElementTagNameMap>(tag:K){return document.createElementNS(SVG_NS,tag);}
 function shortTitle(title:string,length=19){return title.length>length?`${title.slice(0,length)}…`:title;}
@@ -33,12 +34,17 @@ export async function mountGraph(root:HTMLElement) {
   const positions=new Map<string,Node>();
   let nodes:Node[]=[],edges:Edge[]=[],width=800,height=500;
   const layer=svgElement('g'),edgeLayer=svgElement('g'),nodeLayer=svgElement('g');layer.append(edgeLayer,nodeLayer);canvas.append(layer);
+  const markerId=`arrow-${crypto.randomUUID()}`;
+  const defs=svgElement('defs'),marker=svgElement('marker'),arrow=svgElement('path');
+  marker.id=markerId;marker.setAttribute('viewBox','0 0 8 8');marker.setAttribute('refX','8');marker.setAttribute('refY','4');marker.setAttribute('markerWidth','8');marker.setAttribute('markerHeight','8');marker.setAttribute('markerUnits','userSpaceOnUse');marker.setAttribute('orient','auto-start-reverse');
+  arrow.setAttribute('d','M0,0 L8,4 L0,8 L2,4 Z');arrow.setAttribute('fill','var(--accent)');marker.append(arrow);defs.append(marker);canvas.prepend(defs);
+  const radius=(node:Node)=>node.type==='topic'?6:9+Math.min(5,node.degree);
   const svg=select(canvas);
   const zoomBehavior=zoom<SVGSVGElement,unknown>().scaleExtent([.2,4]).extent(()=>[[0,0],[width,height]])
     .on('zoom',event=>layer.setAttribute('transform',event.transform.toString()));
   svg.call(zoomBehavior).on('dblclick.zoom',null);
   const simulation=forceSimulation<Node>().force('charge',forceManyBody().strength(-380))
-    .force('collision',forceCollide<Node>(n=>n.type==='topic'?40:70))
+    .force('collision',forceCollide<Node>(n=>n.type==='topic'?52:88))
     .force('x',forceX<Node>(0).strength(.06)).force('y',forceY<Node>(0).strength(.08))
     .alphaDecay(.06).on('tick',paint);
   const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -46,7 +52,7 @@ export async function mountGraph(root:HTMLElement) {
   function neighbors(id:string){const result=new Set([id]);for(const link of data.links){if(link.source===id)result.add(link.target);if(link.target===id)result.add(link.source);}return result;}
   function paint(){
     const lines=edgeLayer.querySelectorAll<SVGLineElement>('line');
-    edges.forEach((edge,i)=>{const line=lines[i];if(!line)return;line.setAttribute('x1',String(edge.source.x??0));line.setAttribute('y1',String(edge.source.y??0));line.setAttribute('x2',String(edge.target.x??0));line.setAttribute('y2',String(edge.target.y??0));});
+    edges.forEach((edge,i)=>{const line=lines[i];if(!line)return;const points=edgeEndpoints({x:edge.source.x??0,y:edge.source.y??0},{x:edge.target.x??0,y:edge.target.y??0},radius(edge.source),radius(edge.target));for(const [key,value] of Object.entries(points))line.setAttribute(key,String(value));});
     const groups=nodeLayer.querySelectorAll<SVGGElement>('.graph-node');
     nodes.forEach((node,i)=>groups[i]?.setAttribute('transform',`translate(${node.x??0},${node.y??0})`));
   }
@@ -68,7 +74,7 @@ export async function mountGraph(root:HTMLElement) {
     const list=root.querySelector<HTMLElement>('[data-graph-links]')!;
     tags.replaceChildren();list.replaceChildren();
     const note=notes.get(selected);open.hidden=!note;
-    if(!note){title.textContent='从一篇笔记出发';description.textContent='点击节点查看联系，点击节点旁的 ↗ 直接阅读。';return;}
+    if(!note){title.textContent='从一篇笔记出发';description.textContent='点击节点查看引用方向与相关笔记，在这里打开文章。';return;}
     title.textContent=note.title;description.textContent=note.description;
     tags.textContent=[noteType(note),...(note.demo?['演示内容']:[]),...note.tags.map(t=>`#${t}`)].join(' · ');open.href=note.url;
     const linked=new Map<string,Set<string>>();
@@ -87,6 +93,7 @@ export async function mountGraph(root:HTMLElement) {
       if(topicFilter)topicFilter.value=node.title;
       draw();return;
     }
+    if(compact&&notes.has(id)){location.assign(notes.get(id)!.url);return;}
     selected=id;details();
     if(neighborToggle?.checked)draw();else highlight();
     if(!compact){const state=new URL(location.href);state.searchParams.set('focus',id);history.replaceState(null,'',state);}
@@ -106,30 +113,40 @@ export async function mountGraph(root:HTMLElement) {
     nodes=visible.map(note=>{
       const node=positions.get(note.id)??{id:note.id,title:note.title,type:note.type,note,degree:0};node.degree=0;positions.set(note.id,node);return node;
     });
-    const byId=new Map(nodes.map(n=>[n.id,n]));const pairs=new Set<string>();edges=[];
-    for(const link of data.links){const source=byId.get(link.source),target=byId.get(link.target);if(!source||!target)continue;const key=[source.id,target.id].sort().join('\0');if(pairs.has(key))continue;pairs.add(key);source.degree++;target.degree++;edges.push({source,target,topic:false});}
+    const byId=new Map(nodes.map(n=>[n.id,n]));const pairs=new Map<string,Edge>();edges=[];
+    for(const link of data.links){
+      const source=byId.get(link.source),target=byId.get(link.target);if(!source||!target)continue;
+      const key=[source.id,target.id].sort().join('\0');
+      let edge=pairs.get(key);
+      if(!edge){edge={source,target,topic:false,forward:false,reverse:false};pairs.set(key,edge);source.degree++;target.degree++;edges.push(edge);}
+      if(link.kind==='link'){if(edge.source.id===source.id)edge.forward=true;else edge.reverse=true;}
+    }
     const noteEdges=edges.length;
     if(topicToggle?.checked){
       for(const title of [...new Set(visible.flatMap(n=>n.topics))]){
         const id=`theme:${title}`;const node=positions.get(id)??{id,title,type:'topic' as const,degree:0};positions.set(id,node);nodes.push(node);
-        for(const note of visible.filter(n=>n.topics.includes(title)))edges.push({source:byId.get(note.id)!,target:node,topic:true});
+        for(const note of visible.filter(n=>n.topics.includes(title)))edges.push({source:byId.get(note.id)!,target:node,topic:true,forward:false,reverse:false});
       }
     }
     edgeLayer.replaceChildren();nodeLayer.replaceChildren();
-    edges.forEach(edge=>{const line=svgElement('line');line.classList.add('graph-edge');if(edge.topic)line.classList.add('topic-edge');edgeLayer.append(line);});
+    edges.forEach(edge=>{
+      const line=svgElement('line');line.classList.add('graph-edge');line.dataset.source=edge.source.id;line.dataset.target=edge.target.id;
+      if(edge.topic)line.classList.add('topic-edge');
+      if(edge.forward)line.setAttribute('marker-end',`url(#${markerId})`);
+      if(edge.reverse)line.setAttribute('marker-start',`url(#${markerId})`);
+      const title=svgElement('title');title.textContent=edge.topic?'所属主题':edge.forward&&edge.reverse?'互相引用':edge.forward?`${edge.source.title} 引用 ${edge.target.title}`:edge.reverse?`${edge.target.title} 引用 ${edge.source.title}`:'显式关联';line.append(title);edgeLayer.append(line);
+    });
     nodes.forEach(node=>{
       const group=svgElement('g');group.classList.add('graph-node',`node-${node.type}`);group.dataset.id=node.id;
       const selector=svgElement('g');selector.setAttribute('role','button');selector.setAttribute('tabindex','0');selector.setAttribute('aria-label',node.type==='topic'?`筛选主题：${node.title}`:`查看连接：${node.title}`);
       const target=svgElement('circle');target.classList.add('graph-hit');target.setAttribute('r','24');
       const ring=svgElement('circle');ring.classList.add('graph-ring');ring.setAttribute('r',String(15+Math.min(6,node.degree)));
-      const dot=svgElement('circle');dot.classList.add('graph-dot');dot.setAttribute('r',String(node.type==='topic'?6:8+Math.min(5,node.degree)));
-      const label=svgElement('text');label.setAttribute('text-anchor','middle');label.setAttribute('y','35');label.textContent=shortTitle(node.title,compact?14:19);
+      const dot=svgElement('circle');dot.classList.add('graph-dot');dot.setAttribute('r',String(radius(node)));
+      const label=svgElement('text');label.setAttribute('text-anchor','middle');label.setAttribute('y','34');
+      const chunks=node.type==='topic'?[shortTitle(node.title,12)]:([...node.title].length>24?[...node.title].slice(0,23).join('')+'…':node.title).match(/.{1,12}/gu)??[node.title];
+      chunks.forEach((text,i)=>{const span=svgElement('tspan');span.setAttribute('x','0');span.setAttribute('dy',i?'17':'0');span.textContent=text;label.append(span);});
       const tooltip=svgElement('title');tooltip.textContent=node.title+(node.note?.demo?' · 演示内容':'');selector.append(tooltip,target,ring,dot,label);group.append(selector);
       selector.addEventListener('click',()=>choose(node.id));selector.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();choose(node.id);}});
-      if(node.note){const anchor=svgElement('a');anchor.setAttribute('href',node.note.url);anchor.setAttribute('aria-label',`阅读：${node.title}`);
-        const openArea=svgElement('rect');openArea.setAttribute('x','17');openArea.setAttribute('y','-23');openArea.setAttribute('width','28');openArea.setAttribute('height','28');openArea.setAttribute('fill','transparent');
-        const arrow=svgElement('text');arrow.setAttribute('x','23');arrow.setAttribute('y','-4');arrow.textContent='↗';anchor.append(openArea,arrow);group.append(anchor);
-      }
       nodeLayer.append(group);
       select(selector).datum(node).call(drag<SVGGElement,Node>().container(layer).clickDistance(6)
         .on('start',event=>{if(!event.active)simulation.alphaTarget(.15).restart();node.fx=node.x;node.fy=node.y;})
@@ -150,6 +167,7 @@ export async function mountGraph(root:HTMLElement) {
     draw();
   });
   root.querySelectorAll<HTMLButtonElement>('[data-graph-zoom]').forEach(button=>button.addEventListener('click',()=>svg.call(zoomBehavior.scaleBy,button.dataset.graphZoom==='in'?1.3:1/1.3)));
+  root.querySelector('[data-graph-fit]')?.addEventListener('click',fit);
   root.querySelector('[data-graph-reset]')?.addEventListener('click',()=>{
     if(search)search.value='';if(topicFilter)topicFilter.value='';if(typeFilter)typeFilter.value='';if(neighborToggle)neighborToggle.checked=false;
     if(!compact){selected='';const state=new URL(location.href);state.searchParams.delete('focus');history.replaceState(null,'',state);details();}draw();

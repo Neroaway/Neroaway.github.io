@@ -1,6 +1,8 @@
 export const siteConfig = {
   title: 'ThinkingByThinking',
   author: 'Neroaway',
+  githubOwner: 'Neroaway',
+  branch: 'master',
   description: '在阅读中理解，在思考中提问。',
   bio: '我是 Neroaway。这里记录我的论文阅读、尚未解开的疑问，以及从阅读中生长的研究想法。慢一点，想清楚，再往前走。',
   github: 'https://github.com/Neroaway',
